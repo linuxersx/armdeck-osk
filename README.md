@@ -4,7 +4,7 @@ ArmDeck Wayland on-screen keyboard with Chinese input.
 
 Components:
 
-- `armdeck-osk` — layer-shell keyboard, Cairo/Pango rendering, input-method-v1
+- `armdeck-osk` — layer-shell keyboard, Cairo/Pango rendering, input-method-v2
 - `armdeck-oskd` — persistent supervisor, restarts the keyboard if it exits
 - `armdeck-osk-input` — gamepad forwarding to the keyboard
 - `armdeck-osk-settings` — LVGL settings application
