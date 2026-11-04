@@ -1,0 +1,17 @@
+# Build output
+build/
+build-*/
+*.o
+*.a
+*.so
+*.so.*
+
+# Packages and archives
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.tar.gz
+*.tar.zst
+
+# macOS
+.DS_Store
+._*

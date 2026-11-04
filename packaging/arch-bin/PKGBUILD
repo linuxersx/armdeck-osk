@@ -1,0 +1,22 @@
+pkgname=armdeck-osk
+pkgver=1.0.0
+pkgrel=17
+pkgdesc="ArmDeck Wayland on-screen keyboard with Chinese input"
+arch=('aarch64')
+url="https://example.invalid/taiji"
+license=('GPL-3.0-or-later')
+depends=('cairo' 'pango' 'wayland' 'librime' 'librime-data' 'fontconfig' 'freetype2' 'sdl2' 'libpng' 'zlib')
+makedepends=('cmake' 'pkgconf' 'wayland-protocols')
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build -j"$(nproc)"
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+}

@@ -1,0 +1,12 @@
+[Unit]
+Description=ArmDeck OSK gamepad forwarding
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/armdeck-osk-input
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

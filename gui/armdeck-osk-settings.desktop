@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=ArmDeck 输入法设置
+Name[en]=ArmDeck Keyboard Settings
+Comment=配置键盘布局、主题、悬浮和分体键盘
+Comment[en]=Configure keyboard layout, theme, floating and split modes
+Exec=armdeck-osk-settings
+Icon=armdeck-osk-settings
+Terminal=false
+Categories=Settings;Utility;
+Keywords=keyboard;input;osk;ime;

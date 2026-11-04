@@ -1,0 +1,16 @@
+{
+  "rows": 5,
+  "margin": 8,
+  "gap": 4,
+  "radius": 8,
+  "candidate_height": 42,
+  "palette": {
+    "bg": "#0A0C12",
+    "surface": "#12151F",
+    "card": "#1A1E2A",
+    "elevated": "#232838",
+    "text": "#E6EDF5",
+    "accent": "#4D8BFF",
+    "focus": "#6EA2FF"
+  }
+}
