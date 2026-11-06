@@ -36,6 +36,7 @@ typedef struct {
     struct wl_output *output;
     int output_w;
     int output_h;
+    int refresh_hz;
     struct zwlr_layer_shell_v1 *layer_shell;
     struct zwlr_layer_surface_v1 *layer_surface;
     struct wl_surface *surface;
@@ -535,11 +536,12 @@ static void output_geometry(void *data, struct wl_output *output, int32_t x, int
 static void output_mode(void *data, struct wl_output *output, uint32_t flags,
                         int32_t width, int32_t height, int32_t refresh)
 {
-    (void)output; (void)refresh;
+    (void)output;
     OskApp *app = data;
     if (flags & WL_OUTPUT_MODE_CURRENT) {
         app->output_w = width;
         app->output_h = height;
+        if (refresh > 0) app->refresh_hz = (int)((refresh + 500) / 1000);
     }
 }
 
@@ -1342,7 +1344,9 @@ int main(void)
             fds[nfds].events = POLLIN;
             nfds++;
         }
-        int timeout = app->anim_active ? 16 : 1000;
+        int hz = app->refresh_hz > 0 ? app->refresh_hz : 60;
+        int timeout = app->anim_active ? (1000 / hz) : 1000;
+        if (timeout < 1) timeout = 1;
         int pr = poll(fds, (nfds_t)nfds, timeout);
         if (pr < 0) { if (errno == EINTR) continue; break; }
         reload_config(app, false);

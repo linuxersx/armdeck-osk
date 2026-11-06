@@ -24,6 +24,8 @@ static uint32_t tick_cb(void)
     return SDL_GetTicks();
 }
 
+static int g_refresh_hz = 60;
+
 static void flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
 {
     Backend *b = lv_display_get_user_data(disp);
@@ -587,6 +589,15 @@ bool backend_init(Backend *b, int width, int height, BackendInputCb cb, void *us
         fprintf(stderr, "[armdeck-osk] SDL_CreateWindow failed: %s\n", SDL_GetError());
         return false;
     }
+    {
+        SDL_DisplayMode dm;
+        int di = SDL_GetWindowDisplayIndex(b->window);
+        g_refresh_hz = 60;
+        if (di >= 0 && SDL_GetCurrentDisplayMode(di, &dm) == 0 &&
+            dm.refresh_rate > 0)
+            g_refresh_hz = dm.refresh_rate;
+        fprintf(stderr, "[armdeck-osk] display refresh: %d Hz\n", g_refresh_hz);
+    }
     SDL_SetRelativeMouseMode(SDL_FALSE);
     SDL_SetWindowGrab(b->window, SDL_FALSE);
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
@@ -598,6 +609,12 @@ bool backend_init(Backend *b, int width, int height, BackendInputCb cb, void *us
     if (!b->renderer) {
         fprintf(stderr, "[armdeck-osk] SDL_CreateRenderer failed: %s\n", SDL_GetError());
         return false;
+    }
+    {
+        SDL_RendererInfo ri;
+        if (SDL_GetRendererInfo(b->renderer, &ri) == 0 && ri.name &&
+            strstr(ri.name, "opengl"))
+            SDL_GL_SetSwapInterval(1);
     }
     int draw_w = width, draw_h = height;
     backend_output_size(b, &draw_w, &draw_h);
@@ -630,6 +647,11 @@ bool backend_init(Backend *b, int width, int height, BackendInputCb cb, void *us
     lv_display_set_buffers(b->display, b->framebuffer, NULL, fb_bytes, LV_DISPLAY_RENDER_MODE_DIRECT);
     lv_display_set_flush_cb(b->display, flush_cb);
     lv_display_set_default(b->display);
+    {
+        lv_timer_t *rt = lv_display_get_refr_timer(b->display);
+        if (rt && g_refresh_hz > 0)
+            lv_timer_set_period(rt, (uint32_t)(1000 / g_refresh_hz));
+    }
 
     b->pointer = lv_indev_create();
     lv_indev_set_type(b->pointer, LV_INDEV_TYPE_POINTER);
@@ -686,13 +708,21 @@ void backend_refresh_size(Backend *b)
 
 void backend_present(Backend *b)
 {
-    if (!b->needs_present) return;
     b->needs_present = false;
     SDL_UpdateTexture(b->texture, NULL, b->framebuffer, b->width * 4);
     SDL_SetRenderDrawColor(b->renderer, 5, 6, 10, 255);
     SDL_RenderClear(b->renderer);
     SDL_RenderCopy(b->renderer, b->texture, NULL, NULL);
     SDL_RenderPresent(b->renderer);
+
+    if (g_refresh_hz > 0) {
+        static uint32_t last_present;
+        uint32_t interval = 1000u / (uint32_t)g_refresh_hz;
+        uint32_t now = SDL_GetTicks();
+        if (last_present && (int32_t)(now - last_present) < (int32_t)interval)
+            SDL_Delay(interval - (now - last_present));
+        last_present = SDL_GetTicks();
+    }
 }
 
 void backend_toggle_fullscreen(Backend *b)

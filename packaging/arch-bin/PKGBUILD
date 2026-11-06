@@ -1,6 +1,6 @@
 pkgname=armdeck-osk
 pkgver=1.0.0
-pkgrel=17
+pkgrel=18
 pkgdesc="ArmDeck Wayland on-screen keyboard with Chinese input"
 arch=('aarch64')
 url="https://example.invalid/taiji"

@@ -226,7 +226,6 @@ int main(int argc, char **argv)
         backend_poll(&backend);
         lv_timer_handler();
         backend_present(&backend);
-        SDL_Delay(4);
     }
 
     if (font_path) {
